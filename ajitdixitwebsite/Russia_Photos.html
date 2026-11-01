@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Album</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 70%;
+            object-fit: contain;
+        }
+        .modal-content {
+            text-align: center;
+            color: white;
+        }
+    </style>
+<script defer data-domain="www.ajitdixit.com" src="https://analytics.tiiny.site/js/plausible.js"></script></head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center mb-6">Photo Album</h1>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Photo 1 -->
+            <div class="cursor-pointer" onclick="openModal('Photos/Russia/Kremlin.jpeg', 'Kremlin Entrance', 'A stroll into the Lion's Den.')">
+                <img src="Photos/Russia/Kremlin.jpeg" alt="Kremlin Entrance" class="w-full h-48 object-cover rounded-lg">
+                <p class="text-center mt-2 font-semibold">Kremlin</p>
+            </div>
+            <!-- Photo 2 -->
+            <div class="cursor-pointer" onclick="openModal('https://via.placeholder.com/800x600/FF5733', 'Mountain View', 'Majestic mountains under a clear blue sky.')">
+                <img src="https://via.placeholder.com/200x150/FF5733" alt="Mountain View" class="w-full h-48 object-cover rounded-lg">
+                <p class="text-center mt-2 font-semibold">Mountain View</p>
+            </div>
+            <!-- Photo 3 -->
+            <div class="cursor-pointer" onclick="openModal('https://via.placeholder.com/800x600/33FF57', 'City Lights', 'A vibrant cityscape at night with glowing lights.')">
+                <img src="https://via.placeholder.com/200x150/33FF57" alt="City Lights" class="w-full h-48 object-cover rounded-lg">
+                <p class="text-center mt-2 font-semibold">City Lights</p>
+            </div>
+            <!-- Photo 4 -->
+            <div class="cursor-pointer" onclick="openModal('https://via.placeholder.com/800x600/5733FF', 'Forest Path', 'A serene path through a lush green forest.')">
+                <img src="https://via.placeholder.com/200x150/5733FF" alt="Forest Path" class="w-full h-48 object-cover rounded-lg">
+                <p class="text-center mt-2 font-semibold">Forest Path</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <img id="modal-image" src="" alt="Enlarged Image">
+            <h2 id="modal-title" class="text-xl font-bold mt-4"></h2>
+            <p id="modal-description" class="mt-2"></p>
+            <button onclick="closeModal()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(imageSrc, title, description) {
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDescription = document.getElementById('modal-description');
+            
+            modalImage.src = imageSrc;
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('modal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

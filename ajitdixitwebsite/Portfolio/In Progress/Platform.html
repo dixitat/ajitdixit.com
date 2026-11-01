@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>2D Platformer Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+<script defer data-domain="www.ajitdixit.com" src="https://analytics.tiiny.site/js/plausible.js"></script></head>
+<body>
+<script>
+let player;
+let platforms = [];
+let coins = [];
+let doorways = [];
+let gravity = 0.6;
+let jumpForce = -12;
+let score = 0;
+let currentLevel = 1;
+let cameraY = 0;
+
+function setup() {
+  createCanvas(800, 600);
+  player = new Player(100, 500);
+  generateLevel(currentLevel);
+}
+
+function draw() {
+  background(220);
+  
+  // Camera system
+  translate(0, -cameraY + player.y - height/2);
+  cameraY = lerp(cameraY, player.y - height/2, 0.1);
+
+  player.update();
+  player.show();
+  
+  // Display and check platforms
+  for (let platform of platforms) {
+    platform.show();
+    player.checkCollision(platform);
+  }
+  
+  // Display and check doorways
+  for (let doorway of doorways) {
+    doorway.show();
+    doorway.checkCollision(player);
+  }
+
+  // Display and check coins
+  for (let i = coins.length - 1; i >= 0; i--) {
+    coins[i].show();
+    if (player.collectCoin(coins[i])) {
+      coins.splice(i, 1);
+      score += 10;
+    }
+  }
+  // Calculate target cameraY so player is always near top when ascending
+let targetCameraY = player.y - height / 2;
+// Clamp cameraY so it never goes below 0 (ground level)
+if (targetCameraY < 0) targetCameraY = 0;
+cameraY = lerp(cameraY, targetCameraY, 0.1);
+translate(0, -cameraY);
+  
+  // Display UI elements (fixed position)
+  resetMatrix();
+  textSize(20);
+  fill(0);
+  text("Score: " + score, 10, 30);
+  text("Level: " + currentLevel, 10, 60);
+  
+  // Check win condition
+  if (coins.length === 0) {
+    doorways[0].activate();
+  }
+}
+
+function generateLevel(level) {
+  platforms = [];
+  coins = [];
+  doorways = [];
+  
+  // Base ground platform
+  platforms.push(new Platform(0, 550, 800, 50));
+  
+  // Generate platforms
+  const platformCount = 8 + 2 * level; // 10 for level 1, +2 per level
+  for (let i = 0; i < platformCount; i++) {
+    platforms.push(new Platform(
+      random(50, 700),
+      450 - i * 80,
+      random(80, 150),
+      20
+    ));
+  }
+  
+  // Add doorway at top platform
+  const topPlatform = platforms[platforms.length-1];
+  doorways.push(new Doorway(
+    topPlatform.x + topPlatform.width/2 - 25,
+    topPlatform.y - 60
+  ));
+  
+  // Generate coins
+  for (let i = 0; i < 3 + level; i++) {
+    coins.push(new Coin(
+      random(50, 750),
+      random(100, 500)
+    ));
+  }
+  // Place a coin on top of each platform (except the ground)
+for (let i = 1; i < platforms.length; i++) {
+  let plat = platforms[i];
+  coins.push(new Coin(
+    plat.x + plat.width / 2,
+    plat.y - 10 // coin radius is 10
+  ));
+}
+}
+
+function keyPressed() {
+  if (keyCode === UP_ARROW && player.jumpCount < player.maxJumps) {
+    player.velocityY = jumpForce;
+    player.isOnGround = false;
+    player.jumpCount++;
+  }
+}
+
+class Player {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.width = 30;
+    this.height = 30;
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.isOnGround = false;
+    this.jumpCount = 0;
+    this.maxJumps = 2;
+  }
+  
+  update() {
+    this.velocityY += gravity;
+    this.y += this.velocityY;
+    this.x += this.velocityX;
+    
+    if (keyIsDown(LEFT_ARROW)) this.velocityX = -5;
+    else if (keyIsDown(RIGHT_ARROW)) this.velocityX = 5;
+    else this.velocityX = 0;
+    
+    if (this.x < 0) this.x = 0;
+    if (this.x > width - this.width) this.x = width - this.width;
+    if (this.y > height - this.height) {
+      this.y = height - this.height;
+      this.velocityY = 0;
+      this.isOnGround = true;
+    }
+  }
+  
+  show() {
+    fill(255, 0, 0);
+    rect(this.x, this.y, this.width, this.height);
+  }
+  
+  checkCollision(platform) {
+    if (this.velocityY > 0 && 
+        this.x + this.width > platform.x && 
+        this.x < platform.x + platform.width && 
+        this.y + this.height > platform.y && 
+        this.y + this.height < platform.y + platform.height) {
+      this.y = platform.y - this.height;
+      this.velocityY = 0;
+      this.isOnGround = true;
+      this.jumpCount = 0;
+    }
+  }
+  
+  collectCoin(coin) {
+    let d = dist(this.x + this.width/2, this.y + this.height/2, 
+                coin.x, coin.y);
+    return d < this.width/2 + coin.radius;
+  }
+}
+
+class Platform {
+  constructor(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+  
+  show() {
+    fill(0, 255, 0);
+    rect(this.x, this.y, this.width, this.height);
+  }
+}
+
+class Coin {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.radius = 10;
+  }
+  
+  show() {
+    fill(255, 255, 0);
+    ellipse(this.x, this.y, this.radius * 2);
+  }
+}
+
+class Doorway {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.active = false;
+  }
+
+  show() {
+    fill(0);
+    rect(this.x, this.y, 50, 60);
+    arc(this.x + 25, this.y, 50, 50, PI, TWO_PI);
+  }
+
+  checkCollision(player) {
+    if (player.x < this.x + 50 && 
+        player.x + player.width > this.x &&
+        player.y < this.y + 60 &&
+        player.y + player.height > this.y) {
+      if (this.active) {
+        currentLevel++;
+        player.x = 100;
+        player.y = 500;
+        generateLevel(currentLevel);
+        cameraY = 0;
+      }
+    }
+  }
+
+  activate() {
+    this.active = true;
+  }
+}
+</script>
+</body>
+</html>

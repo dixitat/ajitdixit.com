@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Processing</title>
+    <style>
+        body {
+            background-color: #9d1e3d;
+        }
+        h1 {
+            color: #f5f2e8;
+            text-align: center;
+            font-family: Times New Roman, monospace;
+            height: 60px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 40px;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #000000;
+            text-align: center;
+            font-family: Times New Roman, monospace;
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+            border: 3px solid;
+            border-collapse: collapse;
+            border-color: #d4af37;
+        }
+        p {
+            font-family: verdana;
+            font-size: 20px;
+            text-align: left;
+            color: #276e47;
+            width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Payment-specific styles */
+        .payment-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f2e8;
+            border: 3px solid #d4af37;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #276e47;
+            font-family: Times New Roman, monospace;
+            font-size: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d4af37;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: verdana;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #276e47;
+            color: #f5f2e8;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Times New Roman, monospace;
+            font-size: 20px;
+        }
+
+        button:hover {
+            background-color: #1e5435;
+        }
+
+        #payment-message {
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+            font-family: verdana;
+            font-size: 20px;
+        }
+
+        .success {
+            color: #276e47;
+        }
+
+        .error {
+            color: #9d1e3d;
+        }
+    </style>
+<script defer data-domain="www.ajitdixit.com" src="https://analytics.tiiny.site/js/plausible.js"></script></head>
+<body>
+    <h1>Payment Processing</h1>
+    <div class="payment-container">
+        <h2>Make a Payment</h2>
+        <form id="payment-form">
+            <div class="form-group">
+                <label for="card-number">Card Number</label>
+                <input type="text" id="card-number" placeholder="1234 5678 9012 3456" required>
+            </div>
+            <div class="form-group">
+                <label for="expiry">Expiry Date</label>
+                <input type="text" id="expiry" placeholder="MM/YY" required>
+            </div>
+            <div class="form-group">
+                <label for="cvc">CVC</label>
+                <input type="text" id="cvc" placeholder="123" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount ($)</label>
+                <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+            </div>
+            <button type="submit">Process Payment</button>
+        </form>
+        <div id="payment-message"></div>
+    </div>
+
+    <script>
+        document.getElementById('payment-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const cardNumber = document.getElementById('card-number').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvc = document.getElementById('cvc').value;
+            const amount = document.getElementById('amount').value;
+            const messageDiv = document.getElementById('payment-message');
+
+            // Basic card number validation (Luhn algorithm)
+            function validateCardNumber(cardNum) {
+                const num = cardNum.replace(/\s/g, '');
+                let sum = 0;
+                let isEven = false;
+                
+                for (let i = num.length - 1; i >= 0; i--) {
+                    let digit = parseInt(num.charAt(i));
+                    if (isEven) {
+                        digit *= 2;
+                        if (digit > 9) digit -= 9;
+                    }
+                    sum += digit;
+                    isEven = !isEven;
+                }
+                return (sum % 10) === 0;
+            }
+
+            try {
+                // Basic validation
+                if (!validateCardNumber(cardNumber)) {
+                    throw new Error('Invalid card number');
+                }
+                if (!expiry.match(/^\d{2}\/\d{2}$/)) {
+                    throw new Error('Invalid expiry date format (MM/YY)');
+                }
+                if (!cvc.match(/^\d{3,4}$/)) {
+                    throw new Error('Invalid CVC');
+                }
+                if (amount <= 0) {
+                    throw new Error('Amount must be greater than 0');
+                }
+
+                messageDiv.style.display = 'block';
+                messageDiv.className = '';
+                messageDiv.textContent = 'Processing payment...';
+
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Simulate successful payment
+                messageDiv.className = 'success';
+                messageDiv.textContent = `Payment of $${parseFloat(amount).toFixed(2)} processed successfully!`;
+                
+                // Reset form
+                document.getElementById('payment-form').reset();
+
+            } catch (error) {
+                messageDiv.style.display = 'block';
+                messageDiv.className = 'error';
+                messageDiv.textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+import pandas as pd
+import folium
+from folium.plugins import MarkerCluster, HeatMap, MiniMap
+df = pd.read_csv('Cities.csv')
+if 'lat' in df.columns and 'lon' in df.columns:
+    # Create the base map
+    my_map = folium.Map(location=[39.1031, -84.5120], zoom_start=5)
+
+    # Add marker cluster for performance with many markers
+    marker_cluster = MarkerCluster().add_to(my_map)
+
+    # Define the color function
+    def get_color(population):
+        if population > 5000000:
+            return 'purple'
+        elif population > 1000000:
+            return 'red'
+        elif population > 500000:
+            return 'orange'
+        elif population > 100000:
+            return 'yellow'
+        else:
+            return 'green'
+
+    for _, row in df.iterrows():
+        formatted_population = f"{row['population']:,}"
+
+        html_content = f"""
+            <div style="width: 300px; height: auto;">
+            <b>About</b><br>
+            <b>Location:</b> {row['city']}, {row['country']}<br>
+            <b>Population:</b> {formatted_population}<br><br>
+            <b>Coordinates</b><br>
+            <b>Latitude:</b> {row['lat']}<br>
+            <b>Longitude:</b> {row['lon']}
+        </div>
+        """
+        
+        # Use folium.Popup with the custom HTML content
+        iframe = folium.IFrame(html_content, width=300, height=180)
+        popup = folium.Popup(iframe, max_width=305)
+
+        # Custom icon based on population using the new function
+        icon_color = get_color(row['population'])
+        icon = folium.Icon(color=icon_color, icon='info-sign')
+
+        folium.Marker([row['lat'], row['lon']], popup=popup, icon=icon).add_to(marker_cluster)
+
+    # Add different tile layers
+    folium.TileLayer('Stamen Terrain', attr='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> — Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors').add_to(my_map)
+    folium.TileLayer('Stamen Toner', attr='Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> — Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors').add_to(my_map)
+    folium.LayerControl().add_to(my_map)
+
+    # Add HeatMap based on population
+    heat_data = [[row['lat'], row['lon'], row['population']] for index, row in df.iterrows()]
+    HeatMap(heat_data).add_to(my_map)
+
+    # Add MiniMap for better navigation
+    minimap = MiniMap()
+    my_map.add_child(minimap)
+
+    # Custom CSS for popup appearance
+    custom_css = """
+    <style>
+    .folium-popup {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        border: 2px solid #ccc;
+    }
+    .leaflet-marker-cluster {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+    .leaflet-marker-cluster div {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+    }
+    </style>
+    """
+    my_map.get_root().header.add_child(folium.Element(custom_css))
+
+    # Updated legend for 5 tiers
+    legend_html = '''
+    <div style="position: fixed; 
+    bottom: 50px; left: 50px; width: 150px; height: 190px; 
+    border:2px solid grey; z-index:9999; font-size:14px;
+    background-color:white; padding: 10px; overflow-y: auto;">
+     <b>Population:</b><br>
+    <i class="fa fa-map-marker fa-2x" style="color:purple"></i> > 5M<br>
+    <i class="fa fa-map-marker fa-2x" style="color:red"></i> 1M - 5M<br>
+    <i class="fa fa-map-marker fa-2x" style="color:orange"></i> 500K - 1M<br>
+    <i class="fa fa-map-marker fa-2x" style="color:yellow"></i> 100K - 500K<br>
+    <i class="fa fa-map-marker fa-2x" style="color:green"></i> < 100K
+    </div>
+    '''
+    my_map.get_root().html.add_child(folium.Element(legend_html))
+
+    my_map.save('map.html')
+else:
+    print("Your CSV file does not contain 'lat' and 'lon' columns or the column names do not match.")
