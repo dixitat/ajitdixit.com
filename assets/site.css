@@ -360,3 +360,23 @@ details.more h4 { margin: 18px 0 0; font-size: 15px; font-weight: 700; color: #C
 /* Snake Odyssey: keep the legend inside the page card */
 .game-wrapper { flex-wrap: wrap; gap: 16px; width: 100% !important; }
 .game-wrapper .legend { position: static; transform: none; align-self: flex-start; }
+
+/* Home: skills, about, certifications */
+.skill-groups { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.skill-group h3 { margin: 0 0 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); font-size: 14px; font-weight: 500; }
+.about p { margin: 0; max-width: 760px; }
+.cert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.cert-list li { display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.cert-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.cert-list strong { font-size: 15px; line-height: 1.35; }
+.cert-list span { font-size: 13px; color: var(--muted); }
+@media (max-width: 900px) {
+  .skill-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bento > .span-3 + .card:not([class*="span"]) { grid-column: span 2; }
+}
+@media (max-width: 600px) {
+  .skill-groups { grid-template-columns: minmax(0, 1fr); }
+  .bento > .span-3 + .card:not([class*="span"]) { grid-column: auto; }
+}
