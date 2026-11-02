@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>AjitDixit.com</title>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" type="image/x-icon" href="../../images/AD_Logo.png">
-<link rel="stylesheet" href="../../Style_Master.css">
+<title>Snake Odyssey · Ajit Dixit</title>
+<meta name="description" content="Ajit Dixit — product leader building AI and enterprise products. Senior Consultant at Ingage Partners.">
+<link rel="icon" type="image/png" href="../../images/AD_Logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/site.css?v=2">
 <style>
 	.game-wrapper {
         display: flex;
@@ -96,21 +101,29 @@
 </style>
 </head>
 <body>
-	<h1><a href="../../Home.html" title="Home"><img src="../../images/AD_Logo.png" alt="AD_Logo" id="AD_Logo"></a>Welcome to Ajit Dixit's Personal Website</h1>
-	<div id="clock"></div>
-    <script src="../../Javascript Files/Clock.js?v=2"></script>
-<nav>
-<ul>
-  <li><a href="../../Home.html">Home</a></li> 
-  <li><a href="../../Professional/Work_Experience.html">Work Experience</a></li> 
-  <li><a href="../../Professional/Education.html">Education</a></li> 
-  <li><a href="../../Professional/Resume.html">Resume</a></li> 
-  <li><a href="../../Cases/Case Studies.html">Case Studies</a></li> 
-  <li><a href="../Portfolio.html">Portfolio</a></li> 
-</ul>
-</nav>
-	<h2 id="Intro">Snake Odyssey</h2>
-	<p id="Intro">Use the arrow keys to move. Eat apples to grow, avoid obstacles, and take the portal to the next level.</p>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="../../Home.html" title="Home">
+      <img src="../../images/AD_Logo.png" alt="AD logo">
+      <span>Ajit Dixit<small>Product &amp; AI</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+        <a href="../../Home.html">Home</a>
+        <a href="../../Professional/Work_Experience.html">Work Experience</a>
+        <a href="../../Professional/Education.html">Education</a>
+        <a href="../../Cases/Case Studies.html">Case Studies</a>
+        <a href="../../Portfolio/Portfolio.html" aria-current="page">Portfolio</a>
+        <a href="../../Professional/Resume.html" class="nav-cta">Resume</a>
+    </nav>
+    <span id="clock" aria-label="Current date and time"></span>
+  </header>
+
+  <section class="card stack">
+    <a href="../Portfolio.html" style="font-weight: 700;">← Portfolio</a>
+    <h1 class="page-title">Snake Odyssey</h1>
+    <p class="lead">Use the arrow keys to move. Eat apples to grow, avoid obstacles, and take the portal to the next level.</p>
+  </section>
+  <section class="card" style="overflow-x: auto;">
     <div class="game-wrapper">
         <div class="game-container" id="gameContainer">
             <div class="score-board" id="scoreDisplay">Level: 1 | Apples: 0 | Time: 0s</div>
@@ -126,24 +139,17 @@
             <div class="legend-item"><div class="color-box" style="background: #87CEEB;"></div> Background</div>
         </div>
     </div>
+  </section>
 <script src="Snake.js"></script>
-<nav>
-<ul>
-  <li><a href="../../Home.html">Home</a></li> 
-  <li><a href="../../Professional/Work_Experience.html">Work Experience</a></li> 
-  <li><a href="../../Professional/Education.html">Education</a></li> 
-  <li><a href="../../Professional/Resume.html">Resume</a></li> 
-  <li><a href="../../Cases/Case Studies.html">Case Studies</a></li> 
-  <li><a href="../Portfolio.html">Portfolio</a></li> 
-</ul>
-</nav>
+
+  <footer class="site-footer">
+    <span>© Ajit Dixit · Fort Thomas, Kentucky</span>
+    <nav aria-label="Social">
+      <a href="mailto:ajitddixit@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dixitajit">LinkedIn</a>
+    </nav>
+  </footer>
+</div>
+<script src="../../Javascript Files/Clock.js?v=3"></script>
 </body>
-<footer>
-	<div class="footer">
-<ul>
-	Socials: <br>
-  <li><a href="https://www.linkedin.com/in/dixitajit">LinkedIn</a></li> 
-</ul>
-	</div>
-</footer>
 </html>
