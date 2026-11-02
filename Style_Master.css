@@ -280,8 +280,11 @@ body, table, nav, footer {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    width: 800px;
+    width: 100%;
+    max-width: 950px;
     height: 600px;
+    max-height: 80vh;
+    border: none;
 }
 
 /* Clock styling */
