@@ -252,8 +252,10 @@ body, table, nav, footer {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    width: 800px;
-    height: 600px;
+    width: 100%;
+    max-width: 900px;
+    height: 1100px;
+    max-height: 85vh;
 }
 
 /* Clock styling */
