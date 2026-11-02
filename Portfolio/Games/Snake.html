@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AjitDixit.com</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/x-icon" href="../../images/AD_Logo.png">
+<link rel="stylesheet" href="../../Style_Master.css">
+<style>
+	.game-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 80%;
+        max-width: 800px;
+        margin: 20px auto;
+        position: relative;
+    }
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        border-radius: 8px;
+        background: #276e47;
+        border: 2px solid #000000;
+        width: 500px;
+        transition: border-color 0.3s;
+        position: relative; /* Added to position start button relative to container */
+    }
+    .game-container.level-available {
+        border-color: #ffffff;
+    }
+    canvas {
+        border: 3px solid #d4af37;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        background: #87CEEB;
+    }
+    .score-board {
+        margin-bottom: 20px;
+        font-size: 20px;
+        color: #ffffff;
+        background: #276e47;
+        border: 3px solid #d4af37;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        font-family: "Times New Roman", monospace;
+    }
+    #startButton {
+        font-size: 20px;
+        color: #ffffff;
+        background: #276e47;
+        border: 3px solid #d4af37;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        font-family: "Times New Roman", monospace;
+        cursor: pointer;
+        position: absolute; /* Position over the game */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Center the button */
+        z-index: 10; /* Ensure it’s above the canvas */
+    }
+    #startButton:hover {
+        background: #d4af37;
+        color: #276e47;
+    }
+    .legend {
+        position: fixed;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 10px;
+        background: #f5f2e8;
+        border: 2px solid #d4af37;
+        border-radius: 5px;
+        font-family: "Times New Roman", monospace;
+        color: #276e47;
+        font-size: 16px;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+    .color-box {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+        border: 1px solid #000;
+        border-radius: 50%;
+    }
+</style>
+</head>
+<body>
+	<h1><img src="../../images/AD_Logo.png" alt="AD_Logo" id="AD_Logo">Welcome to Ajit Dixit's Personal Website</h1>
+	<div id="clock"></div>
+    <script src="../../Javascript Files/Clock.js"></script>
+<nav>
+<ul>
+  <li><a href="../../Home.html">Home</a></li> 
+  <li><a href="../../Professional/Work_Experience.html">Work Experience</a></li> 
+  <li><a href="../../Professional/Education.html">Education</a></li> 
+  <li><a href="../../Professional/Resume.html">Resume</a></li> 
+  <li><a href="../../Cases/Case Studies.html">Case Studies</a></li> 
+  <li><a href="../Portfolio.html">Portfolio</a></li> 
+</ul>
+</nav>
+	<h2 id="Intro">Snake Odyssey</h2>
+	<p id="Intro">Use the arrow keys to move. Eat apples to grow, avoid obstacles, and take the portal to the next level.</p>
+    <div class="game-wrapper">
+        <div class="game-container" id="gameContainer">
+            <div class="score-board" id="scoreDisplay">Level: 1 | Apples: 0 | Time: 0s</div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <button id="startButton">Start Game</button>
+        </div>
+        <div class="legend">
+            <div class="legend-item"><div class="color-box" style="background: #d4af37;"></div> Snake</div>
+            <div class="legend-item"><div class="color-box" style="background: #9d1e3d;"></div> Red Apple (1 pt)</div>
+            <div class="legend-item"><div class="color-box" style="background: #00FF00;"></div> Green Apple (2-5 pts)</div>
+            <div class="legend-item"><div class="color-box" style="background: #000000;"></div> Portal to Next Level</div>
+            <div class="legend-item"><div class="color-box" style="background: #808080;"></div> Obstacle</div>
+            <div class="legend-item"><div class="color-box" style="background: #87CEEB;"></div> Background</div>
+        </div>
+    </div>
+<script src="Snake.js"></script>
+<nav>
+<ul>
+  <li><a href="../../Home.html">Home</a></li> 
+  <li><a href="../../Professional/Work_Experience.html">Work Experience</a></li> 
+  <li><a href="../../Professional/Education.html">Education</a></li> 
+  <li><a href="../../Professional/Resume.html">Resume</a></li> 
+  <li><a href="../../Cases/Case Studies.html">Case Studies</a></li> 
+  <li><a href="../Portfolio.html">Portfolio</a></li> 
+</ul>
+</nav>
+</body>
+<footer>
+	<div class="footer">
+<ul>
+	Socials: <br>
+  <li><a href="https://www.linkedin.com/in/dixitajit">LinkedIn</a></li> 
+</ul>
+	</div>
+</footer>
+</html>
