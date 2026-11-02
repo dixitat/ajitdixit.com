@@ -1,17 +1,19 @@
 function updateClock() {
+    const clock = document.getElementById('clock');
+    if (!clock) return;
+
     const now = new Date();
-    let hours = now.getHours();
+
+    // Date as M/D/YYYY (e.g. 11/1/2026)
+    const dateString = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+
+    // Time in 24-hour (military) format (e.g. 21:51:07)
+    const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    let ampm = hours >= 12 ? 'PM' : 'AM';
+    const timeString = `${hours}:${minutes}:${seconds}`;
 
-    // Convert hours to 12-hour format
-    hours = hours % 12 || 12; // if hours is 0, make it 12
-
-    // Format the time string
-    const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
-
-    document.getElementById('clock').innerText = timeString;
+    clock.innerText = `${dateString} | ${timeString}`;
 }
 
 // Update the clock every second
