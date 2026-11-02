@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snake Odyssey · Ajit Dixit</title>
+<meta name="description" content="Play Snake Odyssey — a neon twist on classic Snake with portals, combos and faster levels, by Ajit Dixit.">
+<link rel="canonical" href="https://ajitdixit.com/portfolio/snake/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ajit Dixit">
+<meta property="og:title" content="Snake Odyssey · Ajit Dixit">
+<meta property="og:description" content="Play Snake Odyssey — a neon twist on classic Snake with portals, combos and faster levels, by Ajit Dixit.">
+<meta property="og:url" content="https://ajitdixit.com/portfolio/snake/">
+<meta property="og:image" content="https://ajitdixit.com/assets/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ajit Dixit — Product &amp; AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Snake Odyssey · Ajit Dixit">
+<meta name="twitter:description" content="Play Snake Odyssey — a neon twist on classic Snake with portals, combos and faster levels, by Ajit Dixit.">
+<meta name="twitter:image" content="https://ajitdixit.com/assets/img/og-image.png">
+<meta name="theme-color" content="#0B0D12">
+<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="apple-touch-icon" href="/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css?v=6">
+<style>
+.snake-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.hud { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.hud div { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.hud span { display: block; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 0.04em; }
+.hud strong { display: block; font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.progress { height: 10px; border-radius: 999px; background: var(--card-2); border: 1px solid var(--line); overflow: hidden; }
+.progress span { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #4F46E5, #818CF8); transition: width 0.25s; }
+.progress span.open { background: linear-gradient(90deg, #A855F7, #F0ABFC); }
+#progressLabel { margin: 0; font-size: 14px; color: var(--muted); }
+.stage { position: relative; width: min(100%, 620px, calc(100vh - 220px)); min-width: 260px; margin: 0 auto; aspect-ratio: 1 / 1; }
+#board { display: block; width: 100%; height: 100%; border-radius: 16px; border: 1px solid var(--line); touch-action: none; box-shadow: 0 20px 60px rgba(79, 70, 229, 0.18); }
+.overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; border-radius: 16px; background: rgba(11, 13, 18, 0.78); backdrop-filter: blur(4px); }
+.overlay[hidden] { display: none; }
+.overlay h2 { font-size: 34px; font-weight: 800; }
+.overlay p { margin: 0; max-width: 380px; color: #C9CEDB; }
+.overlay .hint { font-size: 13px; color: var(--muted); }
+.combo { align-self: flex-start; }
+.combo.hot { background: rgba(244, 114, 182, 0.18); color: #F9A8D4; }
+.dpad { display: none; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(2, 56px); gap: 8px; justify-content: center; }
+.dpad button { border: 1px solid var(--line); background: var(--card-2); color: var(--text); border-radius: 14px; font-size: 22px; cursor: pointer; touch-action: manipulation; }
+.dpad button:active { background: var(--accent-strong); }
+.dpad .up { grid-column: 2; grid-row: 1; }
+.dpad .left { grid-column: 1; grid-row: 2; }
+.dpad .down { grid-column: 2; grid-row: 2; }
+.dpad .right { grid-column: 3; grid-row: 2; }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.legend li { display: flex; align-items: center; gap: 10px; }
+.legend i { flex: 0 0 auto; width: 16px; height: 16px; border-radius: 50%; }
+kbd { font-family: inherit; font-size: 12px; font-weight: 700; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--card-2); }
+@media (max-width: 900px) { .snake-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 600px) { .hud strong { font-size: 18px; } .overlay h2 { font-size: 26px; } }
+@media (pointer: coarse), (max-width: 900px) { .dpad { display: grid; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="/" title="Home">
+      <img src="/assets/img/logo.png" alt="AD logo">
+      <span>Ajit Dixit<small>Product &amp; AI</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+        <a href="/">Home</a>
+        <a href="/work/">Work Experience</a>
+        <a href="/education/">Education</a>
+        <a href="/case-studies/">Case Studies</a>
+        <a href="/portfolio/" aria-current="page">Portfolio</a>
+        <a href="/resume/" class="nav-cta">Resume</a>
+    </nav>
+    <span id="clock" aria-label="Current date and time"></span>
+  </header>
+
+  <section class="card stack">
+    <a href="/portfolio/" style="font-weight: 700;">← Portfolio</a>
+    <h1 class="page-title">Snake Odyssey</h1>
+    <p class="lead">Eat apples to fill the bar, dive into the portal, and survive faster levels with new obstacles.</p>
+  </section>
+
+  <div class="snake-layout">
+    <section class="card stack">
+      <div class="hud">
+        <div><span>LEVEL</span><strong id="hudLevel">1</strong></div>
+        <div><span>SCORE</span><strong id="hudScore">0</strong></div>
+        <div><span>BEST</span><strong id="hudBest">0</strong></div>
+        <div><span>TIME</span><strong id="hudTime">0:00</strong></div>
+      </div>
+      <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+      <p id="progressLabel">10 more points to open the portal</p>
+      <div class="stage">
+        <canvas id="board" role="img" aria-label="Snake Odyssey game board"></canvas>
+        <div class="overlay" id="overlay">
+          <h2 id="ovTitle">Snake Odyssey</h2>
+          <p id="ovText">Eat apples to fill the bar, then dive into the portal.</p>
+          <button class="btn" id="startBtn" type="button">Start game</button>
+          <p class="hint">Arrow keys or WASD to steer · Space to pause · Swipe on phones</p>
+        </div>
+      </div>
+      <div class="dpad" aria-label="Direction controls">
+        <button type="button" class="up" data-dir="up" aria-label="Up">▲</button>
+        <button type="button" class="left" data-dir="left" aria-label="Left">◀</button>
+        <button type="button" class="down" data-dir="down" aria-label="Down">▼</button>
+        <button type="button" class="right" data-dir="right" aria-label="Right">▶</button>
+      </div>
+    </section>
+
+    <aside class="stack">
+      <section class="card stack">
+        <div class="row-between"><h2 class="card-title">Run</h2><span class="pill combo" id="hudCombo">No combo</span></div>
+        <div class="btn-row"><button class="btn ghost" id="pauseBtn" type="button">Start</button></div>
+        <p class="muted" style="margin: 0; font-size: 14px;">Eat apples less than 2.5 seconds apart to build a combo. Every 3 in a row raises your multiplier, up to ×3.</p>
+      </section>
+      <section class="card stack">
+        <h2 class="card-title">Legend</h2>
+        <ul class="legend">
+          <li><i style="background: #818CF8;"></i>Your snake</li>
+          <li><i style="background: #E11D48;"></i>Red apple · 1 point</li>
+          <li><i style="background: #10B981;"></i>Bonus apple · 2–5 points, disappears fast</li>
+          <li><i style="background: #A855F7;"></i>Portal · next level</li>
+          <li><i style="background: #3A4258; border-radius: 4px;"></i>Obstacle</li>
+        </ul>
+      </section>
+      <section class="card stack">
+        <h2 class="card-title">Controls</h2>
+        <p style="margin: 0; font-size: 14px;"><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> to steer</p>
+        <p style="margin: 0; font-size: 14px;"><kbd>Space</kbd> pause · <kbd>Enter</kbd> start</p>
+        <p class="muted" style="margin: 0; font-size: 14px;">On a phone, swipe on the board or use the arrow pad.</p>
+      </section>
+    </aside>
+  </div>
+<script src="/portfolio/snake/snake.js?v=2"></script>
+
+  <footer class="site-footer">
+    <span>© Ajit Dixit · Fort Thomas, Kentucky</span>
+    <nav aria-label="Social">
+      <a href="mailto:ajitddixit@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dixitajit">LinkedIn</a>
+    </nav>
+  </footer>
+</div>
+<script src="/assets/js/clock.js?v=4"></script>
+</body>
+</html>

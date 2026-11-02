@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio · Ajit Dixit</title>
+<meta name="description" content="Things Ajit Dixit has built — Powder Run (a first-person 3D ski game), Snake Odyssey, an interactive world cities map and more.">
+<link rel="canonical" href="https://ajitdixit.com/portfolio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ajit Dixit">
+<meta property="og:title" content="Portfolio · Ajit Dixit">
+<meta property="og:description" content="Things Ajit Dixit has built — Powder Run (a first-person 3D ski game), Snake Odyssey, an interactive world cities map and more.">
+<meta property="og:url" content="https://ajitdixit.com/portfolio/">
+<meta property="og:image" content="https://ajitdixit.com/assets/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ajit Dixit — Product &amp; AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Portfolio · Ajit Dixit">
+<meta name="twitter:description" content="Things Ajit Dixit has built — Powder Run (a first-person 3D ski game), Snake Odyssey, an interactive world cities map and more.">
+<meta name="twitter:image" content="https://ajitdixit.com/assets/img/og-image.png">
+<meta name="theme-color" content="#0B0D12">
+<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="apple-touch-icon" href="/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css?v=6">
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="/" title="Home">
+      <img src="/assets/img/logo.png" alt="AD logo">
+      <span>Ajit Dixit<small>Product &amp; AI</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+        <a href="/">Home</a>
+        <a href="/work/">Work Experience</a>
+        <a href="/education/">Education</a>
+        <a href="/case-studies/">Case Studies</a>
+        <a href="/portfolio/" aria-current="page">Portfolio</a>
+        <a href="/resume/" class="nav-cta">Resume</a>
+    </nav>
+    <span id="clock" aria-label="Current date and time"></span>
+  </header>
+
+  <section class="card stack">
+    <p class="eyebrow">Portfolio</p>
+    <h1 class="page-title">Things I've built</h1>
+    <p class="lead">Small projects I've built with code and prompt engineering.</p>
+  </section>
+  <div class="bento">
+    <section class="card span-4 stack" id="powder-run">
+      <div class="row-between"><span class="pill">3D · JavaScript · three.js</span><span class="muted" style="font-size: 14px;">Nov 2026</span></div>
+      <h2 style="font-size: 30px; font-weight: 800;">Powder Run</h2>
+      <p class="muted" style="margin: 0; max-width: 860px;">A first-person downhill ski game inspired by the 90s classics. Carve between pines and rocks, launch off ramps for big air, slip through slalom gates for style points — and stay ahead of the avalanche chasing you down the mountain.</p>
+      <div class="game-embed" id="powderEmbed">
+        <img src="/portfolio/powder-run/poster.jpg" alt="First-person view down a snowy slope lined with pine trees, with slalom flags ahead">
+        <button class="btn play-btn" type="button" id="powderPlay">▶ Play here</button>
+      </div>
+      <div class="btn-row">
+        <a class="btn ghost" href="/portfolio/powder-run/">Open full screen</a>
+        <a class="btn ghost" href="/portfolio/powder-run/game.js">Source code</a>
+      </div>
+      <p class="muted" style="margin: 0; font-size: 14px;">Arrow keys or WASD to steer · ↑ tuck · ↓ brake · Space jump · P pause. On a phone, use the on-screen buttons.</p>
+      <script>
+        document.getElementById('powderPlay').addEventListener('click', function () {
+          var box = document.getElementById('powderEmbed');
+          var f = document.createElement('iframe');
+          f.src = '/portfolio/powder-run/';
+          f.title = 'Powder Run game';
+          f.allow = 'fullscreen';
+          f.setAttribute('allowfullscreen', '');
+          box.innerHTML = '';
+          box.appendChild(f);
+          f.focus();
+        });
+      </script>
+    </section>
+    <section class="card span-2 stack">
+      <div class="row-between"><span class="pill">Python · Prompt Engineering</span><span class="muted" style="font-size: 14px;">Feb 16, 2025</span></div>
+      <h2 style="font-size: 26px; font-weight: 800;">5,000 Biggest Cities of the World</h2>
+      <p class="muted" style="margin: 0;">An interactive map built from a list of cities. Each city gets a colored dot based on population — purple for big cities, green for smaller ones — and you can click a dot for the city's name and population. A heat layer makes denser areas brighter, you can switch map styles, and a small inset map helps you navigate.</p>
+      <div class="btn-row"><a class="btn" href="/portfolio/world-cities-map/">Open the map</a><a class="btn ghost" href="/portfolio/world-cities-map/source-code.txt">Source code</a></div>
+    </section>
+    <section class="card span-2 stack">
+      <div class="row-between"><span class="pill">JavaScript · Prompt Engineering</span><span class="muted" style="font-size: 14px;">Updated Nov 2026</span></div>
+      <h2 style="font-size: 26px; font-weight: 800;">Snake Odyssey</h2>
+      <p class="muted" style="margin: 0;">A twist on classic Snake with smooth neon graphics. Eat red apples (1 point) and short-lived bonus apples (2–5 points) to open a portal to the next level — each one faster, with new obstacles. Chain apples quickly for combo multipliers and chase your best score.</p>
+      <details class="more">
+        <summary><span class="when-closed">How to play</span><span class="when-open">Hide instructions</span></summary>
+        <ol>
+          <li>Click <strong>Start game</strong>, or press an arrow key.</li>
+          <li>Steer with the arrow keys or WASD. On a phone, swipe on the board or use the arrow pad.</li>
+          <li>Eat red apples for 1 point. Green bonus apples are worth 2–5 points but vanish after a few seconds.</li>
+          <li>Eat apples less than 2.5 seconds apart to build a combo; every 3 in a row raises your multiplier, up to ×3.</li>
+          <li>Fill the bar with 10 points to open the purple portal. Enter it to reach the next level — faster, with new obstacles.</li>
+          <li>Avoid the walls, obstacles and your own tail. Press Space to pause.</li>
+        </ol>
+      </details>
+      <div class="btn-row"><a class="btn" href="/portfolio/snake/">Play Snake Odyssey</a><a class="btn ghost" href="/portfolio/snake/snake.js">Source code</a></div>
+    </section>
+    <section class="card span-4 stack">
+      <div class="row-between"><span class="pill">JavaScript · Canvas</span><span class="muted" style="font-size: 14px;">Interactive</span></div>
+      <h2 style="font-size: 26px; font-weight: 800;">Interactive Solar System</h2>
+      <p class="muted" style="margin: 0;">An animated, interactive model of the solar system that runs in the browser.</p>
+      <div class="btn-row"><a class="btn" href="/portfolio/solar-system/">Open the solar system</a></div>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    <span>© Ajit Dixit · Fort Thomas, Kentucky</span>
+    <nav aria-label="Social">
+      <a href="mailto:ajitddixit@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dixitajit">LinkedIn</a>
+    </nav>
+  </footer>
+</div>
+<script src="/assets/js/clock.js?v=4"></script>
+</body>
+</html>

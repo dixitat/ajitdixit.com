@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Asteroids Game</title>
+    <style>
+        canvas {
+            background: black;
+            display: block;
+            margin: 0 auto;
+            touch-action: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .controls {
+            margin: 10px auto;
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .dpad {
+            display: grid;
+            grid-template-areas: 
+                ". up ."
+                "left center right"
+                ". down .";
+            gap: 5px;
+        }
+        .dpad button {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            background: #333;
+            color: white;
+            border: 1px solid white;
+        }
+        .up { grid-area: up; }
+        .left { grid-area: left; }
+        .right { grid-area: right; }
+        .down { grid-area: down; }
+        .shoot-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div class="controls">
+        <div class="dpad">
+            <button class="up">↑</button>
+            <button class="left">↶</button>
+            <button class="right">↷</button>
+            <button class="down">↓</button>
+        </div>
+        <button class="shoot-btn">Shoot</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let level = 1;
+        let asteroidsDestroyed = 0;
+        let lives = 3;
+        let health = 100;
+        let bulletsRemaining = 100; // Starting bullets per life
+        let baseFiringSpeed = 25;
+        let asteroids = [];
+        let bullets = [];
+        let alienBullets = [];
+        let ammoContainers = [];
+        let lastShotTime = 0;
+        let zPressed = false;
+        let alienLastShotTime = 0;
+        let blasterActive = true;
+        let isFirstGame = true;
+        let accelFlash = 0;
+
+        // Constants
+        const SHIP_BASE_SPEED = 4 * 0.3;
+        const ASTEROID_BASE_SPEED = 5 * 0.2;
+        const SHIP_SIZE = 20;
+        const ASTEROID_BASE_SIZE = 40;
+        const ALIEN_SIZE = 30;
+        const ALIEN_SPEED = 2;
+        const ALIEN_FIRE_RATE = 2000;
+        const AMMO_SIZE = 20;
+
+        // Ship object
+        const ship = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            angle: 0,
+            speed: 0,
+            dx: 0,
+            dy: 0
+        };
+
+        // Alien ship object
+        const alien = {
+            x: 0,
+            y: 0,
+            dx: ALIEN_SPEED,
+            dy: ALIEN_SPEED,
+            active: false,
+            spawned: false,
+            directionChange: 0
+        };
+
+        // Control states
+        const controls = {
+            up: false,
+            left: false,
+            right: false,
+            down: false,
+            shoot: false
+        };
+
+        // Keyboard controls
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if (e.code === 'KeyZ') zPressed = true;
+        });
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+            if (e.code === 'KeyZ') zPressed = false;
+        });
+
+        // Get button elements
+        const upBtn = document.querySelector('.up');
+        const leftBtn = document.querySelector('.left');
+        const rightBtn = document.querySelector('.right');
+        const downBtn = document.querySelector('.down');
+        const shootBtn = document.querySelector('.shoot-btn');
+
+        // Button event listeners
+        function addButtonListeners(btn, direction, state) {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                controls[direction] = state;
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                controls[direction] = !state;
+            });
+            btn.addEventListener('mousedown', () => controls[direction] = state);
+            btn.addEventListener('mouseup', () => controls[direction] = !state);
+        }
+
+        addButtonListeners(upBtn, 'up', true);
+        addButtonListeners(leftBtn, 'left', true);
+        addButtonListeners(rightBtn, 'right', true);
+        addButtonListeners(downBtn, 'down', true);
+        addButtonListeners(shootBtn, 'shoot', true);
+
+        class Asteroid {
+            constructor(x, y, size, level) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+                this.level = level;
+                this.speed = ASTEROID_BASE_SPEED * Math.pow(1.0075, level - 1) * (0.8 + Math.random() * 0.4);
+                this.angle = Math.random() * Math.PI * 2;
+                this.dx = Math.cos(this.angle) * this.speed;
+                this.dy = Math.sin(this.angle) * this.speed;
+            }
+        }
+
+        class AmmoContainer {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = AMMO_SIZE;
+                this.bullets = Math.floor(Math.random() * 81) + 20; // 20-100 bullets
+            }
+        }
+
+        function spawnAmmoContainer() {
+            const x = Math.random() * (canvas.width - AMMO_SIZE * 2) + AMMO_SIZE;
+            const y = Math.random() * (canvas.height - AMMO_SIZE * 2) + AMMO_SIZE;
+            ammoContainers.push(new AmmoContainer(x, y));
+        }
+
+        function initLevel() {
+            asteroids = [];
+            for (let i = 0; i < 3 + level - 1; i++) {
+                asteroids.push(createRandomAsteroid(ASTEROID_BASE_SIZE));
+            }
+            lastShotTime = 0;
+            alien.active = false;
+            alien.spawned = false;
+            if (Math.random() < 0.3 && !alien.spawned) {
+                spawnAlien();
+            }
+            health = 100;
+            blasterActive = isFirstGame ? true : false;
+            isFirstGame = false;
+            // Spawn ammo container every 2 levels
+            if (level % 2 === 0) {
+                ammoContainers = []; // Clear previous containers
+                spawnAmmoContainer();
+            }
+        }
+
+        function spawnAlien() {
+            alien.x = Math.random() * canvas.width;
+            alien.y = Math.random() * canvas.height;
+            alien.dx = ALIEN_SPEED * (Math.random() < 0.5 ? 1 : -1);
+            alien.dy = ALIEN_SPEED * (Math.random() < 0.5 ? 1 : -1);
+            alien.active = true;
+            alien.spawned = true;
+            alien.directionChange = 0;
+        }
+
+        function createRandomAsteroid(size) {
+            const edge = Math.floor(Math.random() * 4);
+            let x, y;
+            switch(edge) {
+                case 0: x = -size; y = Math.random() * canvas.height; break;
+                case 1: x = canvas.width + size; y = Math.random() * canvas.height; break;
+                case 2: x = Math.random() * canvas.width; y = -size; break;
+                case 3: x = Math.random() * canvas.width; y = canvas.height + size; break;
+            }
+            return new Asteroid(x, y, size, 3);
+        }
+
+        function fireBullet(timestamp) {
+            if (!blasterActive || (!controls.shoot && !keys['KeyZ']) || bulletsRemaining <= 0) return;
+
+            const firingSpeed = baseFiringSpeed * Math.pow(0.99975, level - 1);
+            const timeSinceLastShot = timestamp - lastShotTime;
+
+            if (timeSinceLastShot >= firingSpeed) {
+                bullets.push({
+                    x: ship.x + Math.cos(ship.angle) * SHIP_SIZE,
+                    y: ship.y + Math.sin(ship.angle) * SHIP_SIZE,
+                    dx: Math.cos(ship.angle) * 6,
+                    dy: Math.sin(ship.angle) * 6
+                });
+                lastShotTime = timestamp;
+                bulletsRemaining--;
+                if (keys['KeyZ']) zPressed = true;
+            }
+        }
+
+        function fireAlienBullet(timestamp) {
+            if (!alien.active) return;
+
+            const timeSinceLastShot = timestamp - alienLastShotTime;
+            if (timeSinceLastShot >= ALIEN_FIRE_RATE) {
+                const dx = ship.x - alien.x;
+                const dy = ship.y - alien.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const speed = 4;
+                alienBullets.push({
+                    x: alien.x,
+                    y: alien.y,
+                    dx: (dx / distance) * speed,
+                    dy: (dy / distance) * speed
+                });
+                alienLastShotTime = timestamp;
+            }
+        }
+
+        function checkCollisions() {
+            // Ship vs asteroids
+            asteroids.forEach(a => {
+                const dx = ship.x - a.x;
+                const dy = ship.y - a.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < a.size + SHIP_SIZE/2) {
+                    if (a.level === 3) health -= 80;
+                    else if (a.level === 2) health -= 50;
+                    else if (a.level === 1) health -= 25;
+                    blasterActive = true;
+                    handleHealth();
+                }
+            });
+
+            // Ship vs alien bullets
+            alienBullets.forEach((b, index) => {
+                const dx = ship.x - b.x;
+                const dy = ship.y - b.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < SHIP_SIZE/2) {
+                    health -= 30;
+                    alienBullets.splice(index, 1);
+                    handleHealth();
+                }
+            });
+
+            // Ship vs ammo containers
+            ammoContainers.forEach((ammo, index) => {
+                const dx = ship.x - ammo.x;
+                const dy = ship.y - ammo.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance < ammo.size + SHIP_SIZE/2) {
+                    bulletsRemaining += ammo.bullets;
+                    ammoContainers.splice(index, 1);
+                }
+            });
+
+            // Bullets vs asteroids
+            bullets.forEach((b, bIndex) => {
+                asteroids.forEach((a, aIndex) => {
+                    const dx = b.x - a.x;
+                    const dy = b.y - a.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < a.size) {
+                        bullets.splice(bIndex, 1);
+                        if (a.level > 1) {
+                            asteroids.push(new Asteroid(a.x, a.y, a.size/2, a.level-1));
+                            asteroids.push(new Asteroid(a.x, a.y, a.size/2, a.level-1));
+                        }
+                        asteroids.splice(aIndex, 1);
+                        asteroidsDestroyed++;
+                    }
+                });
+            });
+
+            // Bullets vs alien
+            if (alien.active) {
+                bullets.forEach((b, bIndex) => {
+                    const dx = b.x - alien.x;
+                    const dy = b.y - alien.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < ALIEN_SIZE) {
+                        bullets.splice(bIndex, 1);
+                        alien.active = false;
+                        asteroidsDestroyed = Math.floor(asteroidsDestroyed * 1.5);
+                    }
+                });
+            }
+        }
+
+        function handleHealth() {
+            if (health <= 0) {
+                lives--;
+                resetShip();
+                health = 100;
+                bulletsRemaining = 100; // Reset to 100 bullets per new life
+                blasterActive = true;
+                if (lives <= 0) gameOver();
+            }
+        }
+
+        function resetShip() {
+            ship.x = canvas.width / 2;
+            ship.y = canvas.height / 2;
+            ship.dx = 0;
+            ship.dy = 0;
+            ship.speed = 0;
+        }
+
+        function gameOver() {
+            alert('Game Over! Score: ' + asteroidsDestroyed);
+            lives = 3;
+            level = 1;
+            asteroidsDestroyed = 0;
+            health = 100;
+            bulletsRemaining = 100; // Reset to 100 bullets
+            blasterActive = true;
+            isFirstGame = true;
+            ammoContainers = [];
+            initLevel();
+        }
+
+        function update(timestamp) {
+            if (controls.left || keys['ArrowLeft']) ship.angle -= 0.1;
+            if (controls.right || keys['ArrowRight']) ship.angle += 0.1;
+            if (controls.up || keys['ArrowUp']) {
+                ship.speed = Math.min(SHIP_BASE_SPEED * Math.pow(1.0075, level - 1), ship.speed + 0.1);
+                ship.dx = Math.cos(ship.angle) * ship.speed;
+                ship.dy = Math.sin(ship.angle) * ship.speed;
+                accelFlash = 10;
+            } else if (controls.down || keys['ArrowDown']) {
+                ship.speed = Math.max(-SHIP_BASE_SPEED * Math.pow(1.0075, level - 1), ship.speed - 0.1);
+                ship.dx = Math.cos(ship.angle) * ship.speed;
+                ship.dy = Math.sin(ship.angle) * ship.speed;
+                accelFlash = 10;
+            } else {
+                ship.speed *= 0.98;
+                ship.dx *= 0.98;
+                ship.dy *= 0.98;
+            }
+
+            ship.x += ship.dx;
+            ship.y += ship.dy;
+
+            if (ship.x < 0) ship.x = canvas.width;
+            if (ship.x > canvas.width) ship.x = 0;
+            if (ship.y < 0) ship.y = canvas.height;
+            if (ship.y > canvas.height) ship.y = 0;
+
+            asteroids.forEach(a => {
+                a.x += a.dx;
+                a.y += a.dy;
+                if (a.x < -a.size) a.x = canvas.width + a.size;
+                if (a.x > canvas.width + a.size) a.x = -a.size;
+                if (a.y < -a.size) a.y = canvas.height + a.size;
+                if (a.y > canvas.height + a.size) a.y = -a.size;
+            });
+
+            if (alien.active) {
+                alien.x += alien.dx;
+                alien.y += alien.dy;
+                if (alien.x < 0 || alien.x > canvas.width) alien.dx *= -1;
+                if (alien.y < 0 || alien.y > canvas.height) alien.dy *= -1;
+                alien.directionChange++;
+                if (alien.directionChange > 100 && Math.random() < 0.1) {
+                    alien.dx = ALIEN_SPEED * (Math.random() < 0.5 ? 1 : -1);
+                    alien.dy = ALIEN_SPEED * (Math.random() < 0.5 ? 1 : -1);
+                    alien.directionChange = 0;
+                }
+            }
+
+            bullets.forEach((b, index) => {
+                b.x += b.dx;
+                b.y += b.dy;
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    bullets.splice(index, 1);
+                }
+            });
+
+            alienBullets.forEach((b, index) => {
+                b.x += b.dx;
+                b.y += b.dy;
+                if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
+                    alienBullets.splice(index, 1);
+                }
+            });
+
+            fireBullet(timestamp);
+            fireAlienBullet(timestamp);
+            checkCollisions();
+
+            if (accelFlash > 0) accelFlash--;
+
+            if (asteroids.length === 0 && !alien.active) {
+                level++;
+                initLevel();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw ship
+            ctx.save();
+            ctx.translate(ship.x, ship.y);
+            ctx.rotate(ship.angle);
+            
+            ctx.beginPath();
+            ctx.moveTo(SHIP_SIZE, 0);
+            ctx.lineTo(0, SHIP_SIZE);
+            ctx.lineTo(-SHIP_SIZE, 0);
+            ctx.lineTo(0, -SHIP_SIZE);
+            ctx.closePath();
+            ctx.fillStyle = 'white';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(-SHIP_SIZE, 0);
+            ctx.lineTo(0, SHIP_SIZE);
+            ctx.lineTo(0, -SHIP_SIZE);
+            ctx.closePath();
+            ctx.fillStyle = (controls.left || controls.right || controls.up || controls.down || 
+                           keys['ArrowLeft'] || keys['ArrowRight'] || keys['ArrowUp'] || keys['ArrowDown']) ? 'red' : 'black';
+            ctx.fill();
+
+            if (accelFlash > 0) {
+                ctx.beginPath();
+                ctx.moveTo(-SHIP_SIZE / 2, 0);
+                ctx.lineTo(0, SHIP_SIZE / 2);
+                ctx.lineTo(0, -SHIP_SIZE / 2);
+                ctx.closePath();
+                ctx.fillStyle = `rgba(255, 165, 0, ${accelFlash / 10})`;
+                ctx.fill();
+            }
+
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.restore();
+
+            // Draw asteroids
+            asteroids.forEach(a => {
+                ctx.beginPath();
+                ctx.arc(a.x, a.y, a.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'gray';
+                ctx.fill();
+            });
+
+            // Draw alien ship
+            if (alien.active) {
+                ctx.beginPath();
+                ctx.moveTo(alien.x - ALIEN_SIZE, alien.y + ALIEN_SIZE/2);
+                ctx.lineTo(alien.x + ALIEN_SIZE, alien.y + ALIEN_SIZE/2);
+                ctx.lineTo(alien.x + ALIEN_SIZE/2, alien.y - ALIEN_SIZE/2);
+                ctx.lineTo(alien.x - ALIEN_SIZE/2, alien.y - ALIEN_SIZE/2);
+                ctx.closePath();
+                ctx.fillStyle = 'green';
+                ctx.fill();
+            }
+
+            // Draw ammo containers
+            ammoContainers.forEach(ammo => {
+                ctx.beginPath();
+                ctx.arc(ammo.x, ammo.y, ammo.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('ammo', ammo.x, ammo.y + 4);
+                ctx.textAlign = 'left';
+            });
+
+            // Draw player bullets
+            bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            });
+
+            // Draw alien bullets
+            alienBullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'yellow';
+                ctx.fill();
+            });
+
+            // Draw UI
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Level: ${level}`, 10, 30);
+            ctx.fillText(`Destroyed: ${asteroidsDestroyed}`, canvas.width - 150, 30);
+            ctx.fillText(`Bullets: ${bulletsRemaining}`, 10, canvas.height - 10);
+            ctx.textAlign = 'center';
+            ctx.fillText(`Lives: ${lives} (${health}%)`, canvas.width / 2, 30);
+            ctx.textAlign = 'left';
+        }
+
+        function gameLoop(timestamp) {
+            update(timestamp || 0);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        initLevel();
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

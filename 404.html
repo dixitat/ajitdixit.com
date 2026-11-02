@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>
+  (function () {
+    var map = {"/home.html": "/", "/professional/work_experience.html": "/work/", "/professional/education.html": "/education/", "/professional/resume.html": "/resume/", "/professional/resume/dixit_ajit_2026_resume.pdf": "/resume/Ajit-Dixit-Resume.pdf", "/professional/mit_certificate of completion.pdf": "/education/mit-no-code-ai-certificate.pdf", "/cases/case studies.html": "/case-studies/", "/cases/hotel/hotel.html": "/case-studies/hotel-cancellation/", "/cases/spam/spam.html": "/case-studies/sms-spam/", "/cases/prompt/prompt.html": "/case-studies/prompt-engineering/", "/portfolio/portfolio.html": "/portfolio/", "/portfolio/games/snake.html": "/portfolio/snake/", "/portfolio/games/powderrun/": "/portfolio/powder-run/", "/portfolio/games/powderrun/index.html": "/portfolio/powder-run/", "/portfolio/map.html": "/portfolio/world-cities-map/", "/solar_system.html": "/portfolio/solar-system/", "/work": "/work/", "/education": "/education/", "/resume": "/resume/", "/case-studies": "/case-studies/", "/portfolio": "/portfolio/"};
+    var path = decodeURIComponent(location.pathname).toLowerCase();
+    var dest = map[path] || map[path.replace(/\/$/, '')];
+    if (!dest && /^\/(professional|cases|portfolio)\//.test(path)) dest = path.indexOf('/cases/') === 0 ? '/case-studies/' : (path.indexOf('/portfolio/') === 0 ? '/portfolio/' : '/work/');
+    if (dest) location.replace(dest + location.hash);
+  })();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found · Ajit Dixit</title>
+<meta name="description" content="Ajit Dixit — product leader who takes AI and enterprise platforms from idea to adoption. Senior Consultant at Ingage Partners in Cincinnati.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://ajitdixit.com/404.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ajit Dixit">
+<meta property="og:title" content="Page not found · Ajit Dixit">
+<meta property="og:description" content="Ajit Dixit — product leader who takes AI and enterprise platforms from idea to adoption. Senior Consultant at Ingage Partners in Cincinnati.">
+<meta property="og:url" content="https://ajitdixit.com/404.html">
+<meta property="og:image" content="https://ajitdixit.com/assets/img/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ajit Dixit — Product &amp; AI">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Page not found · Ajit Dixit">
+<meta name="twitter:description" content="Ajit Dixit — product leader who takes AI and enterprise platforms from idea to adoption. Senior Consultant at Ingage Partners in Cincinnati.">
+<meta name="twitter:image" content="https://ajitdixit.com/assets/img/og-image.png">
+<meta name="theme-color" content="#0B0D12">
+<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="apple-touch-icon" href="/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/site.css?v=6">
+</head>
+<body>
+<div class="wrap">
+  <header class="site-header">
+    <a class="brand" href="/" title="Home">
+      <img src="/assets/img/logo.png" alt="AD logo">
+      <span>Ajit Dixit<small>Product &amp; AI</small></span>
+    </a>
+    <nav class="site-nav" aria-label="Main">
+        <a href="/">Home</a>
+        <a href="/work/">Work Experience</a>
+        <a href="/education/">Education</a>
+        <a href="/case-studies/">Case Studies</a>
+        <a href="/portfolio/">Portfolio</a>
+        <a href="/resume/" class="nav-cta">Resume</a>
+    </nav>
+    <span id="clock" aria-label="Current date and time"></span>
+  </header>
+
+  <section class="card stack">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="page-title">This page has moved — or never existed</h1>
+    <p class="lead">The site was recently reorganized. Try one of these:</p>
+    <div class="btn-row">
+      <a class="btn" href="/">Home</a>
+      <a class="btn ghost" href="/work/">Work Experience</a>
+      <a class="btn ghost" href="/case-studies/">Case Studies</a>
+      <a class="btn ghost" href="/portfolio/">Portfolio</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <span>© Ajit Dixit · Fort Thomas, Kentucky</span>
+    <nav aria-label="Social">
+      <a href="mailto:ajitddixit@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/dixitajit">LinkedIn</a>
+    </nav>
+  </footer>
+</div>
+<script src="/assets/js/clock.js?v=4"></script>
+</body>
+</html>

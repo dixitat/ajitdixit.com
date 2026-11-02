@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Powder Run · Ajit Dixit</title>
+<meta name="description" content="Play Powder Run — a first-person 3D downhill ski game. Carve, jump, hit gates and outrun the avalanche.">
+<link rel="canonical" href="https://ajitdixit.com/portfolio/powder-run/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ajit Dixit">
+<meta property="og:title" content="Powder Run · Ajit Dixit">
+<meta property="og:description" content="A first-person 3D downhill ski game. Carve, jump, hit gates and outrun the avalanche.">
+<meta property="og:url" content="https://ajitdixit.com/portfolio/powder-run/">
+<meta property="og:image" content="https://ajitdixit.com/portfolio/powder-run/poster.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ajitdixit.com/portfolio/powder-run/poster.jpg">
+<link rel="icon" type="image/png" href="/assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #0B0D12; --accent: #4F46E5; --accent-2: #818CF8; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0B0D12; color: #FFFFFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+  #game { position: fixed; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
+  .hud { position: fixed; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; gap: 12px; pointer-events: none; }
+  .hud-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .stat { min-width: 84px; padding: 8px 12px; border-radius: 12px; background: rgba(11, 13, 18, 0.55); backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.12); }
+  .stat span { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #C7CDE0; }
+  .stat strong { display: block; font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .icon-btn { pointer-events: auto; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18); background: rgba(11, 13, 18, 0.55); color: #FFFFFF; font-size: 18px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { background: rgba(79, 70, 229, 0.7); }
+  .avalanche { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(420px, calc(100% - 24px)); padding: 10px 14px; border-radius: 14px; background: rgba(11, 13, 18, 0.6); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.12); pointer-events: none; }
+  .avalanche .row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; }
+  .meter { margin-top: 6px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.15); overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 100%; border-radius: 999px; background: linear-gradient(90deg, #F43F5E, #FBBF24 40%, #34D399); transition: width 0.15s linear; }
+  .avalanche.danger { border-color: #F43F5E; animation: pulse 0.6s infinite alternate; }
+  @keyframes pulse { from { box-shadow: 0 0 0 rgba(244,63,94,0); } to { box-shadow: 0 0 28px rgba(244,63,94,0.75); } }
+  #whiteout { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, rgba(255,255,255,0) 35%, rgba(240,246,255,0.95) 100%); opacity: 0; }
+  #popup { position: fixed; left: 50%; top: 28%; transform: translate(-50%, -50%); font-size: clamp(22px, 4vw, 40px); font-weight: 800; text-shadow: 0 4px 24px rgba(0,0,0,0.45); pointer-events: none; opacity: 0; transition: opacity 0.2s, transform 0.2s; white-space: nowrap; }
+  #popup.show { opacity: 1; transform: translate(-50%, -60%); }
+  .overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(11, 13, 18, 0.55); backdrop-filter: blur(3px); }
+  .overlay[hidden] { display: none; }
+  .panel { width: min(520px, 100%); padding: 28px; border-radius: 22px; background: rgba(21, 24, 33, 0.92); border: 1px solid #262B38; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+  .panel h1 { margin: 0; font-size: clamp(30px, 6vw, 46px); font-weight: 800; letter-spacing: -0.03em; }
+  .panel h1 em { font-style: normal; color: var(--accent-2); }
+  .panel p { margin: 12px 0 0; color: #C7CDE0; line-height: 1.5; }
+  .keys { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 18px 0 0; text-align: left; font-size: 14px; color: #C7CDE0; }
+  kbd { font-family: inherit; font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 6px; border: 1px solid #3A4258; background: #1C202B; color: #FFFFFF; }
+  .btn { margin-top: 22px; min-height: 48px; padding: 0 28px; border: 0; border-radius: 14px; background: var(--accent); color: #FFFFFF; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; }
+  .btn:hover { background: #4338CA; }
+  .best { margin-top: 10px; font-size: 13px; color: #A0A7B8; }
+  .touch { position: fixed; left: 0; right: 0; bottom: 84px; display: none; justify-content: space-between; padding: 0 14px; pointer-events: none; }
+  .touch .pad { display: flex; gap: 10px; pointer-events: auto; }
+  .touch button { width: 64px; height: 64px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.25); background: rgba(11, 13, 18, 0.45); color: #FFFFFF; font: inherit; font-size: 14px; font-weight: 800; touch-action: none; }
+  .touch button.on { background: rgba(79, 70, 229, 0.8); }
+  @media (pointer: coarse) { .touch { display: flex; } .keys { display: none; } }
+  @media (max-width: 560px) { .stat { min-width: 70px; padding: 6px 9px; } .stat strong { font-size: 16px; } }
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Powder Run — first-person skiing game"></canvas>
+<div id="whiteout"></div>
+
+<div class="hud">
+  <div class="hud-group">
+    <div class="stat"><span>DISTANCE</span><strong id="hudDist">0 m</strong></div>
+    <div class="stat"><span>SPEED</span><strong id="hudSpeed">0 km/h</strong></div>
+    <div class="stat"><span>STYLE</span><strong id="hudStyle">0</strong></div>
+  </div>
+  <div class="hud-group">
+    <div class="stat"><span>BEST</span><strong id="hudBest">0</strong></div>
+    <button class="icon-btn" id="pauseBtn" type="button" aria-label="Pause">❚❚</button>
+    <button class="icon-btn" id="fsBtn" type="button" aria-label="Full screen">⛶</button>
+  </div>
+</div>
+
+<div class="avalanche" id="avalanche">
+  <div class="row"><span>Avalanche behind you</span><span id="avDist">—</span></div>
+  <div class="meter"><i id="avMeter"></i></div>
+</div>
+
+<div id="popup"></div>
+
+<div class="touch" aria-label="Touch controls">
+  <div class="pad">
+    <button type="button" data-key="left" aria-label="Steer left">◀</button>
+    <button type="button" data-key="right" aria-label="Steer right">▶</button>
+  </div>
+  <div class="pad">
+    <button type="button" data-key="brake" aria-label="Brake">Brake</button>
+    <button type="button" data-key="jump" aria-label="Jump">Jump</button>
+    <button type="button" data-key="tuck" aria-label="Tuck">Tuck</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="panel">
+    <h1 id="ovTitle">Powder <em>Run</em></h1>
+    <p id="ovText">Bomb the mountain in first person. Carve past trees and rocks, launch off ramps, slip through slalom gates — and stay ahead of the avalanche.</p>
+    <div class="keys">
+      <div><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> steer</div>
+      <div><kbd>↑</kbd> or <kbd>W</kbd> tuck for speed</div>
+      <div><kbd>↓</kbd> or <kbd>S</kbd> brake</div>
+      <div><kbd>Space</kbd> jump · <kbd>P</kbd> pause</div>
+    </div>
+    <button class="btn" id="startBtn" type="button">Drop in</button>
+    <p class="best" id="ovBest"></p>
+  </div>
+</div>
+
+<script src="/assets/vendor/three.r128.min.js"></script>
+<script src="game.js?v=3"></script>
+</body>
+</html>
